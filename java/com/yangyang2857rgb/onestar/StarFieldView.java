@@ -3080,7 +3080,7 @@ public class StarFieldView extends View {
     private void scrawlFrame(Canvas c, RectF r, float rad, int color, int alpha, float wob, long seed) {
         hintOutline.reset();
         hintOutline.addRoundRect(r, rad, rad, Path.Direction.CW);
-        if (!hintPm.setPath(hintOutline, false)) return;
+        hintPm.setPath(hintOutline, false);   // 返回值在部分 SDK 上是 void，只取长度即可
         float len = hintPm.getLength();
         if (len <= 1f) return;
         int steps = Math.max(30, (int) (len / (6 * dp)));
