@@ -36,10 +36,20 @@ keytool -genkeypair -keystore "$WORK/debug.keystore" \
 | 项 | 值 |
 | --- | --- |
 | 包名 | `com.yangyang2857rgb.onestar` |
-| 证书主题 | `CN=OneStar Debug, O=OneStar, C=CN` |
-| 指纹（SHA-256） | `B0:F1:E2:A1:36:84:16:90:0A:AC:9C:A2:F9:9F:19:1C:3F:E2:C4:13:43:50:3A:7F:38:A0:F7:98:79:D5:4C:D1` |
-| 有效期 | 2026-11-07 → 2054-03-25 |
+| 证书主题 | `C=CN, O=Wang Sunyang, OU=Independent Developer, CN=Wang Sunyang` |
+| 指纹（SHA-256） | `1E:8F:70:DF:5C:14:38:B6:50:DF:AC:74:0F:BD:D3:CC:AD:89:7E:E1:0F:A7:38:9B:3F:4F:52:98:AA:AA:BB:DC` |
+| keystore 别名 | `wangsunyang`（PKCS#12，`keytool -list` 显示的 Alias name 同值） |
+| 有效期 | 2026-11-07 → 2056-10-30（10000 天） |
 | 签名方案 | v1（JAR 签名）+ v2（APK Signature Scheme v2） |
+
+### 3.1.1 证书切换记录
+
+| 版本区间 | 证书 | 状态 |
+| --- | --- | --- |
+| ≤ 0.12.2（含 rc1） | CI 现场生成的一次性 debug 证书，主题 `CN=OneStar Debug`，指纹 `B0:F1:E2:A1:…:4C:D1` | 已废弃，私钥随 runner 销毁，不可追回 |
+| ≥ 1.0.0 | 开发者发布证书，主题 `CN=Wang Sunyang`，指纹 `1E:8F:70:DF:…:BB:DC` | 现行 |
+
+切换点只有一次：从 0.12.2 升到 1.0.0 必须卸载重装（数据丢失）。1.0.0 之后只要 `ONESTAR_KS_B64` 不换，所有版本都能覆盖升级。
 
 这张证书在本地、CI、Release 三处必须是同一张。指纹写死在 `tools/verify_apk_signature.py` 的 `EXPECTED_SHA256` 常量里。
 
@@ -52,20 +62,23 @@ keytool -genkeypair -keystore "$WORK/debug.keystore" \
 base64 -w0 onestar-debug.keystore > ks.b64        # macOS 用 base64 -i ... | tr -d '\n'
 
 # 2. 写入仓库 Secret（需要仓库 admin 权限）
-gh secret set ONESTAR_KS_B64  --repo <owner>/onestar < ks.b64
-gh secret set ONESTAR_KS_PASS --repo <owner>/onestar --body 'android'
+gh secret set ONESTAR_KS_B64   --repo <owner>/onestar < ks.b64
+gh secret set ONESTAR_KS_PASS  --repo <owner>/onestar --body '<keystore storePassword>'
+gh secret set ONESTAR_KS_ALIAS --repo <owner>/onestar --body 'wangsunyang'
 
 # 3. 清掉本地的中间文件
 rm -f ks.b64
 ```
 
-工作流中的 `Restore signing keystore` 步骤会把 `ONESTAR_KS_B64` 解码成 `ci-keys/onestar-debug.keystore`，并导出 `ONESTAR_KS` / `ONESTAR_KS_PASS` / `ONESTAR_KS_ALIAS` 三个环境变量；`build.sh` 检测到 `ONESTAR_KS` 后就不再走"一次性 keystore"分支。
+工作流中的 `Restore signing keystore` 步骤会把 `ONESTAR_KS_B64` 解码成 `ci-keys/signing.keystore`，并导出 `ONESTAR_KS` / `ONESTAR_KS_PASS` / `ONESTAR_KS_ALIAS` 三个环境变量；`build.sh` 检测到 `ONESTAR_KS` 后就不再走"一次性 keystore"分支。
+
+三个 Secret 必须同时配置：`ONESTAR_KS_B64`（keystore 本体）、`ONESTAR_KS_PASS`（storePassword）、`ONESTAR_KS_ALIAS`（别名，当前为 `wangsunyang`）。缺 `ONESTAR_KS_ALIAS` 时还原步骤会直接失败，避免又退回到写死的错误别名。
 
 也可以在本地直接用 `ONESTAR_KS_B64` 构建，无需落盘 keystore：
 
 ```bash
 ONESTAR_KS_B64="$(cat ks.b64)" \
-ONESTAR_KS_PASS=android ONESTAR_KS_ALIAS=onestar-debug \
+ONESTAR_KS_PASS="$(cat ~/.onestar_ks_pass)" ONESTAR_KS_ALIAS=wangsunyang \
 ANDROID_HOME=$HOME/Android/Sdk ./build.sh
 ```
 
@@ -75,6 +88,8 @@ ANDROID_HOME=$HOME/Android/Sdk ./build.sh
 - 使用一次性 debug keystore 时：只打印指纹，不阻断（本地试验场景）
 
 CI 里另有一个独立步骤 `Verify signing certificate`，Secret 已配置时强制执行。
+
+> 踩坑：这一步原先写的是 `if: ${{ env.ONESTAR_KS != '' }}`。`GITHUB_ENV` 写入的变量只进后续 step 的 shell 环境，**不进 `if` 的 `env` 上下文**，所以条件恒为假，验签从未真正执行过——日志里那一步是灰的，容易被误读为"通过"。现改为在 shell 内判断 `${ONESTAR_KS:-}`，与 `build.sh` 的 `SIGNING_FIXED` 判定保持一致。
 
 ```bash
 # 人工比对

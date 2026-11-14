@@ -36,14 +36,15 @@ jobs:
         env:
           KS_B64: ${{ secrets.ONESTAR_KS_B64 }}
           KS_PASS: ${{ secrets.ONESTAR_KS_PASS }}
+          KS_ALIAS: ${{ secrets.ONESTAR_KS_ALIAS }}
         run: |
           if [ -n "$KS_B64" ]; then
             mkdir -p ci-keys
-            printf '%s' "$KS_B64" | base64 -d > ci-keys/onestar-debug.keystore
-            echo "ONESTAR_KS=$PWD/ci-keys/onestar-debug.keystore" >> "$GITHUB_ENV"
+            printf '%s' "$KS_B64" | base64 -d > ci-keys/signing.keystore
+            echo "ONESTAR_KS=$PWD/ci-keys/signing.keystore" >> "$GITHUB_ENV"
             echo "ONESTAR_KS_PASS=${KS_PASS:-android}" >> "$GITHUB_ENV"
-            echo "ONESTAR_KS_ALIAS=onestar-debug" >> "$GITHUB_ENV"
-            echo "::notice::已使用仓库固定签名证书（ONESTAR_KS_B64）"
+            echo "ONESTAR_KS_ALIAS=${KS_ALIAS:?配置了 ONESTAR_KS_B64 就必须同时配置 ONESTAR_KS_ALIAS}" >> "$GITHUB_ENV"
+            echo "::notice::已使用仓库固定签名证书（ONESTAR_KS_B64，alias=$KS_ALIAS）"
           else
             echo "::warning::未配置 ONESTAR_KS_B64，本次会现场生成一次性 debug keystore，产物无法覆盖升级已装版本"
           fi
@@ -58,8 +59,14 @@ jobs:
         run: bash ./build.sh
 
       - name: Verify signing certificate (证书指纹不得漂移)
-        if: ${{ env.ONESTAR_KS != '' }}
-        run: python3 tools/verify_apk_signature.py build/onestar-*-signed.apk
+        # 不要用 if: env.ONESTAR_KS != ''：GITHUB_ENV 写入的变量不进 if 的 env 上下文，
+        # 该条件恒为假，验签会被静默跳过。判断放在 shell 里。
+        run: |
+          if [ -n "${ONESTAR_KS:-}" ] && [ "${ONESTAR_KS_DRIFT_OK:-0}" != "1" ]; then
+            python3 tools/verify_apk_signature.py build/onestar-*-signed.apk
+          else
+            echo "::warning::本次未使用固定证书或为回归构建，跳过指纹校验；该产物不可用于覆盖升级"
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

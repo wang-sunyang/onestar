@@ -23,10 +23,10 @@ import zipfile
 
 # 仓库约定：所有可覆盖升级的产物都必须由这张证书签名
 EXPECTED_SHA256 = (
-    "B0:F1:E2:A1:36:84:16:90:0A:AC:9C:A2:F9:9F:19:1C:"
-    "3F:E2:C4:13:43:50:3A:7F:38:A0:F7:98:79:D5:4C:D1"
+    "1E:8F:70:DF:5C:14:38:B6:50:DF:AC:74:0F:BD:D3:CC:"
+    "AD:89:7E:E1:0F:A7:38:9B:3F:4F:52:98:AA:AA:BB:DC"
 )
-EXPECTED_SUBJECT = "CN=OneStar Debug"
+EXPECTED_SUBJECT = "CN=Wang Sunyang"
 
 
 def extract_pkcs7(apk_path):
