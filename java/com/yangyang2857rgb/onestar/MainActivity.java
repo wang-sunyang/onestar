@@ -445,19 +445,25 @@ public class MainActivity extends Activity implements StarFieldView.Host,
     /** v4.0 把年度星图存成一张长图。 */
     @Override
     public void savePoster() {
-        Toast.makeText(this, I18n.t("正在把夜空装进相册…", "Packing your night sky into the album…"),
-                Toast.LENGTH_SHORT).show();
+        // 备份 / 导出的反馈不再走系统 Toast 的灰胶囊，
+        // 改成 StarFieldView 里那套手绘便签，和夜空用同一支笔。
+        if (view != null) {
+            view.showHint(I18n.t("正在把夜空装进相册…", "Packing your night sky into the album…"));
+        }
         final android.content.Context app = getApplicationContext();
         new Thread(new Runnable() {
             public void run() {
                 final String path = PosterRenderer.export(app);
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(MainActivity.this,
-                                path == null
-                                        ? I18n.t("这里还没有星星，先点亮一颗吧", "No stars yet — light one first")
-                                        : I18n.f("已存到相册：%s", "Saved to album: %s", path),
-                                Toast.LENGTH_LONG).show();
+                        if (view == null) return;
+                        if (path == null) {
+                            view.showHint(I18n.t("这里还没有星星，先点亮一颗吧", "No stars yet — light one first"));
+                        } else {
+                            int cut = path.lastIndexOf('/');
+                            String name = cut >= 0 && cut + 1 < path.length() ? path.substring(cut + 1) : path;
+                            view.showHint(I18n.t("已备份到相册", "Backed up to album"), name);
+                        }
                     }
                 });
             }
@@ -484,6 +490,11 @@ public class MainActivity extends Activity implements StarFieldView.Host,
     @Override
     public void toast(String msg) {
         if (msg == null || msg.length() == 0) return;
+        // 补记、换色、抹掉的反馈统一走手绘便签；View 未就绪时才退回系统 Toast。
+        if (view != null) {
+            view.showHint(msg);
+            return;
+        }
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 

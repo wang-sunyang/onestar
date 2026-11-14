@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RadialGradient;
@@ -194,6 +195,18 @@ public class StarFieldView extends View {
             if (undoDate != null) invalidate();
         }
     };
+
+    // ---------- 手绘便签：替掉系统 Toast 的灰胶囊 ----------
+    private String hintMain, hintSub;
+    private long hintStart;
+    private long hintDur = 2100L;
+    private final Path hintOutline = new Path();
+    private final Path hintStroke = new Path();
+    private final PathMeasure hintPm = new PathMeasure();
+    private final float[] hintPos = new float[2];
+    private final float[] hintTan = new float[2];
+    private static final long HINT_IN_MS = 220L;
+    private static final long HINT_OUT_MS = 260L;
 
     // v6.3 预测式返回：进度只推动面板本身，星空不跟着整屏后退
     private float backP;
@@ -592,6 +605,7 @@ public class StarFieldView extends View {
 
         if (trimLevel < 2) ambientMeteor(now);
         drawCalendar(c);
+        drawHint(c);
         postInvalidateOnAnimation();
     }
 
@@ -2947,6 +2961,258 @@ public class StarFieldView extends View {
         cancelPlay();
         startPicking(W / 2f, H * 0.42f);
         invalidate();
+    }
+
+    // ---------- 手绘便签提示 ----------
+    /**
+     * 备份 / 导出这类一次性反馈，过去走系统 Toast（灰胶囊、系统字、无笔触），
+     * 与整块夜空不在同一套笔迹里。这里改成 Canvas 自绘的手绘便签：
+     * 双遍勾边、逐字歪斜、底部一条随手画的波浪进度线，2 秒后自己淡走。
+     */
+    void showHint(String main, String sub) {
+        boolean emptyMain = main == null || main.length() == 0;
+        boolean emptySub = sub == null || sub.length() == 0;
+        if (emptyMain && emptySub) return;
+        hintMain = main;
+        hintSub = sub;
+        hintStart = System.nanoTime() / 1000000L;
+        hintDur = emptySub ? 2100L : 2700L;
+        invalidate();
+    }
+
+    void showHint(String main) {
+        showHint(main, null);
+    }
+
+    private void drawHint(Canvas c) {
+        if ((hintMain == null || hintMain.length() == 0) && (hintSub == null || hintSub.length() == 0)) return;
+        long absNow = System.nanoTime() / 1000000L;
+        long life = absNow - hintStart;
+        if (life < 0) life = 0;
+        float outK = 1f;
+        if (life > hintDur) {
+            outK = 1f - (life - hintDur) / (float) HINT_OUT_MS;
+            if (outK <= 0f) {
+                hintMain = null;
+                hintSub = null;
+                return;
+            }
+        }
+        float inK = Math.min(1f, life / (float) HINT_IN_MS);
+        float ease = 1f - (float) Math.pow(1f - inK, 3);
+        int a = (int) (255 * ease * outK);
+        if (a <= 2) return;
+
+        String main = hintMain == null ? "" : hintMain;
+        String sub = hintSub == null ? "" : hintSub;
+        boolean hasSub = sub.length() > 0;
+
+        float mainSize = 12.5f;
+        float subSize = 9.5f;
+        float textCap = Math.min(W - 104 * dp, 286 * dp);
+        while (mainSize > 10f && textWidth(main, mainSize, 0.8f, false) > textCap) mainSize -= 0.5f;
+        while (subSize > 8f && textWidth(sub, subSize, 0.5f, false) > textCap) subSize -= 0.5f;
+
+        float tw = textWidth(main, mainSize, 0.8f, false);
+        if (hasSub) tw = Math.max(tw, textWidth(sub, subSize, 0.5f, false));
+        float starW = 13 * dp;
+        float padX = 20 * dp;
+        float padY = 12 * dp;
+        float w = Math.max(tw + starW + padX * 2, 132 * dp);
+        float h = padY * 2 + (hasSub ? 31 * dp : 18 * dp);
+
+        float cx = W / 2f;
+        float bottomGap = land ? 78 * dp : 186 * dp;
+        float cy = H - bottomGap - h / 2f + (1f - ease) * 15 * dp;
+        if (cy + h / 2f > H - 6 * dp) cy = H - 6 * dp - h / 2f;
+        RectF r = new RectF(cx - w / 2f, cy - h / 2f, cx + w / 2f, cy + h / 2f);
+
+        long seed = 1731L + Math.abs((main + (hasSub ? sub : "")).hashCode() % 977L);
+
+        c.save();
+        c.rotate(-0.8f * ease, cx, cy);          // 便签贴得随手一点，别摆得太正
+
+        // 纸底：深墨 + 四角略淡，像一页被夜风吹过的便笺
+        p.reset();
+        p.setStyle(Paint.Style.FILL);
+        p.setShader(null);
+        p.setColor(0xFF080D1A);
+        p.setAlpha((int) (a * 0.90f));
+        c.drawRoundRect(r, 13 * dp, 13 * dp, p);
+        p.setColor(0xFF101A30);
+        p.setAlpha((int) (a * 0.55f));
+        RectF inner = new RectF(r.left + 1.5f * dp, r.top + 1.5f * dp, r.right - 1.5f * dp, r.bottom - 1.5f * dp);
+        c.drawRoundRect(inner, 12 * dp, 12 * dp, p);
+
+        // 顶沿一笔暖光：纸被灯照亮的那道边
+        p.setShader(new LinearGradient(0, r.top, 0, r.top + 10 * dp,
+                0x33FFE7BE, 0x00FFE7BE, Shader.TileMode.CLAMP));
+        p.setAlpha(a);
+        c.drawRoundRect(inner, 12 * dp, 12 * dp, p);
+        p.setShader(null);
+
+        // 手绘勾边（两遍笔迹）
+        scrawlFrame(c, r, 13 * dp, 0xFFE9C98A, (int) (a * 0.92f), 1.5f * dp, seed);
+
+        // 左边一颗随手画的小星
+        float starCx = r.left + padX + starW / 2f - 1 * dp;
+        float starCy = r.top + padY + 9 * dp;
+        scrawlStar(c, starCx, starCy, 4.6f * dp, 0xFFFFD9A0, (int) (a * 0.95f));
+
+        // 主行 / 副行：逐字歪斜的手写字
+        float tx = r.left + padX + starW;
+        float mainBase = r.top + padY + 11.5f * dp;
+        scrawlText(c, main, tx, mainBase, mainSize, 0xFFF8EEDB, a, true, seed + 11L);
+        if (hasSub) {
+            scrawlText(c, sub, tx, mainBase + 15.5f * dp, subSize, 0xFFBFB39B, (int) (a * 0.95f), false, seed + 29L);
+        }
+
+        // 底部随手划的一道波浪：活着的提示会自己往前走
+        float prog = Math.min(1f, life / (float) Math.max(1L, hintDur));
+        scrawlWave(c, r, prog, 0xFFFFD9A0, (int) (a * 0.55f));
+
+        c.restore();
+        p.setAlpha(255);
+        p.setStyle(Paint.Style.FILL);
+    }
+
+    /** 手绘勾边：沿圆角矩形取点后按两个频率抖动，收笔处留一道小口，像手画的圈没接上。 */
+    private void scrawlFrame(Canvas c, RectF r, float rad, int color, int alpha, float wob, long seed) {
+        hintOutline.reset();
+        hintOutline.addRoundRect(r, rad, rad, Path.Direction.CW);
+        if (!hintPm.setPath(hintOutline, false)) return;
+        float len = hintPm.getLength();
+        if (len <= 1f) return;
+        int steps = Math.max(30, (int) (len / (6 * dp)));
+        float ph = (seed % 628) / 100f;
+        float start = (seed % 100) / 100f;
+        hintStroke.reset();
+        boolean first = true;
+        for (int i = 0; i <= steps; i++) {
+            float k = (i / (float) steps + start) % 1f;
+            float d = len * k * 0.988f;
+            if (!hintPm.getPosTan(d, hintPos, hintTan)) break;
+            float nx = -hintTan[1], ny = hintTan[0];
+            float nl = (float) Math.hypot(nx, ny);
+            if (nl < 1e-4f) { nx = 0; ny = 1; nl = 1f; }
+            nx /= nl;
+            ny /= nl;
+            float ang = k * 6.2831853f;
+            float n = (float) (Math.sin(ang * 3f + ph) * 0.62 + Math.sin(ang * 7.3f + ph * 1.7f) * 0.38);
+            float ox = hintPos[0] + nx * n * wob;
+            float oy = hintPos[1] + ny * n * wob;
+            if (first) {
+                hintStroke.moveTo(ox, oy);
+                first = false;
+            } else {
+                hintStroke.lineTo(ox, oy);
+            }
+        }
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setStrokeJoin(Paint.Join.ROUND);
+        p.setColor(color);
+        p.setAlpha((int) (alpha * 0.66f));
+        p.setStrokeWidth(1.45f * dp);
+        c.drawPath(hintStroke, p);
+
+        int save = c.save();
+        c.translate(0.65f * dp, 0.55f * dp);       // 第二遍：回一笔，压得更淡
+        p.setAlpha((int) (alpha * 0.26f));
+        p.setStrokeWidth(0.9f * dp);
+        c.drawPath(hintStroke, p);
+        c.restoreToCount(save);
+    }
+
+    /** 手写的四角小星：两笔交叉，端点带一点回勾。 */
+    private void scrawlStar(Canvas c, float cx, float cy, float rr, int color, int alpha) {
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setColor(color);
+        p.setAlpha(alpha);
+        p.setStrokeWidth(1.25f * dp);
+        hintStroke.reset();
+        hintStroke.moveTo(cx - rr * 0.16f, cy - rr);
+        hintStroke.quadTo(cx + rr * 0.2f, cy - rr * 0.16f, cx - rr * 0.12f, cy + rr);
+        c.drawPath(hintStroke, p);
+        hintStroke.reset();
+        hintStroke.moveTo(cx - rr, cy + rr * 0.18f);
+        hintStroke.quadTo(cx + rr * 0.22f, cy - rr * 0.14f, cx + rr, cy + rr * 0.1f);
+        c.drawPath(hintStroke, p);
+    }
+
+    /** 逐字绘制：每个字给一点位移、一点旋转，字距也不齐，凑出手写的松紧感。 */
+    private float scrawlText(Canvas c, String s, float x, float baseline, float size, int color,
+                             int alpha, boolean bold, long seed) {
+        if (s == null || s.length() == 0) return 0f;
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(color);
+        p.setAlpha(alpha);
+        p.setTextSize(size * dp * fs);
+        p.setTextAlign(Paint.Align.LEFT);
+        p.setTypeface(bold ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        float cx = x;
+        int gi = 0;
+        for (int i = 0; i < s.length(); ) {
+            int cp = s.codePointAt(i);
+            int n = Character.charCount(cp);
+            String ch = s.substring(i, i + n);
+            float cw = p.measureText(ch);
+            if (ch.trim().length() == 0) {
+                cx += cw;
+                i += n;
+                continue;
+            }
+            int h1 = (int) ((seed + gi * 37L) % 11L);
+            int h2 = (int) ((seed + gi * 53L) % 13L);
+            float jx = (h1 - 5) * 0.16f * dp;
+            float jy = (h2 - 6) * 0.13f * dp;
+            float rot = (h1 - 5) * 0.34f;
+            float sc = 1f + (h2 - 6) * 0.006f;
+            int save = c.save();
+            c.translate(cx + jx + cw / 2f, baseline + jy);
+            c.rotate(rot);
+            if (sc != 1f) c.scale(sc, sc);
+            c.drawText(ch, -cw / 2f, 0f, p);
+            c.restoreToCount(save);
+            cx += cw + 0.32f * dp + (h2 - 6) * 0.06f * dp;
+            gi++;
+            i += n;
+        }
+        return cx - x;
+    }
+
+    /** 便签底边那道手画波浪，k 是「写到哪了」。 */
+    private void scrawlWave(Canvas c, RectF r, float k, int color, int alpha) {
+        if (k <= 0.01f || alpha <= 2) return;
+        float y = r.bottom - 5.5f * dp;
+        float x0 = r.left + 16 * dp;
+        float x1 = r.right - 16 * dp;
+        float end = x0 + (x1 - x0) * Math.min(1f, k);
+        float step = 10 * dp;
+        hintStroke.reset();
+        hintStroke.moveTo(x0, y);
+        int i = 0;
+        for (float x = x0; x < end - 0.5f; x += step) {
+            float nxt = Math.min(end, x + step);
+            float dir = (i % 2 == 0) ? -1f : 1f;
+            hintStroke.quadTo((x + nxt) / 2f, y + dir * 0.85f * dp, nxt, y);
+            i++;
+        }
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setColor(color);
+        p.setAlpha(alpha);
+        p.setStrokeWidth(1.1f * dp);
+        c.drawPath(hintStroke, p);
     }
 
     /** v6.2 抹掉后的撤销条：5 秒内点一下就长回来。 */
