@@ -157,7 +157,7 @@ ANDROID_HOME=$HOME/Android/Sdk ./build.sh
 ANDROID_HOME=$HOME/Android/Sdk \
 JAVA_HOME=/path/to/jdk-17 \
 ZIG=$(command -v zig) \
-ONESTAR_KS=release.keystore ONESTAR_KS_PASS=****** ONESTAR_KS_ALIAS=onestar \
+ONESTAR_KS=release.keystore ONESTAR_KS_PASS=****** ONESTAR_KS_ALIAS=wangsunyang \
 ./build.sh
 ```
 
@@ -171,7 +171,7 @@ used by CI), `SKIP_VERSION_CHECK`.
 ### 3.3 Install on a device
 
 ```bash
-adb install -r build/onestar-0.12.2-signed.apk
+adb install -r build/onestar-1.0.0-signed.apk
 ```
 
 `-r` installs over the existing app while keeping data. An in-place upgrade requires **the same
@@ -287,16 +287,17 @@ The rule now: **pinned certificate, pinned passphrase, monotonically increasing 
 | Item | Value |
 | --- | --- |
 | Package name | `com.yangyang2857rgb.onestar` |
-| Certificate subject | `CN=OneStar Debug, O=OneStar, C=CN` |
-| Certificate SHA-256 | `B0:F1:E2:A1:36:84:16:90:0A:AC:9C:A2:F9:9F:19:1C:3F:E2:C4:13:43:50:3A:7F:38:A0:F7:98:79:D5:4C:D1` |
-| Validity | 2026-11-07 → 2054-03-25 |
+| Certificate subject | `C=CN, O=Wang Sunyang, OU=Independent Developer, CN=Wang Sunyang` |
+| Certificate SHA-256 | `1E:8F:70:DF:5C:14:38:B6:50:DF:AC:74:0F:BD:D3:CC:AD:89:7E:E1:0F:A7:38:9B:3F:4F:52:98:AA:AA:BB:DC` |
+| Key alias | `wangsunyang` (PKCS#12 keystore) |
+| Validity | 2026-11-07 → 2056-10-30 |
 | Signature schemes | v1 (JAR) + v2 (APK Signature Scheme v2) — `build.sh` pins them explicitly with `--v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled false --v4-signing-enabled false`, never relying on build-tools defaults |
 
 CI injects that certificate through repository secrets rather than generating one:
 
-1. Base64 the keystore locally: `base64 -w0 onestar-debug.keystore > ks.b64`
-2. Create `ONESTAR_KS_B64` (the certificate) and `ONESTAR_KS_PASS` (the passphrase) under
-   **Settings → Secrets and variables → Actions**
+1. Base64 the keystore locally: `base64 -w0 release.keystore > ks.b64`
+2. Create `ONESTAR_KS_B64` (the certificate), `ONESTAR_KS_PASS` (the passphrase) and
+   `ONESTAR_KS_ALIAS` (`wangsunyang`) under **Settings → Secrets and variables → Actions**
 3. When `ONESTAR_KS_B64` is present, `build.sh` decodes it into `build/work/` before signing; only
    without it does it fall back to a throwaway debug keystore
 4. At the end of the build, `tools/verify_apk_signature.py` checks the certificate fingerprint and
@@ -306,18 +307,22 @@ Local self-check:
 
 ```bash
 # Print the APK's signing certificate
-apksigner verify --print-certs build/onestar-0.12.2-signed.apk
+apksigner verify --print-certs build/onestar-1.0.0-signed.apk
 
 # Or just check that the fingerprint matches the one this project pins
-python3 tools/verify_apk_signature.py build/onestar-0.12.2-signed.apk
+python3 tools/verify_apk_signature.py build/onestar-1.0.0-signed.apk
 ```
 
 One boundary worth stating clearly: the private key of this debug certificate travels with the
-repository and its secrets, and **it offers no authenticity guarantee whatsoever**. It is fit for
-personal use, for trying the app and for validating the build chain — **it cannot be published to
-an app store and is not suitable for public distribution**. Real distribution requires your own
-release keystore (`ONESTAR_KS` / `ONESTAR_KS_PASS`), at the cost of existing users uninstalling
-and reinstalling.
+stores, not in this repository. The built APK is signed with that single fixed certificate
+(`CN=Wang Sunyang`, SHA-256 `1E:8F:70:DF:…:BB:DC`), so every version from 1.0.0 on can upgrade in
+place. Being self-signed, it still carries no third-party trust chain: Android shows the usual
+"unknown source" prompt, and Play would require its own enrollment — the certificate's job here is
+identity continuity across releases, not store admission.
+
+Upgrade note: 0.12.2 and earlier were signed with a throwaway CI certificate (`CN=OneStar Debug`),
+so moving to 1.0.0 is a **one-time uninstall-and-reinstall**. Night records live in the app's
+private storage and do not survive an uninstall.
 
 ## 6. CI
 
@@ -328,7 +333,7 @@ artifact. The pipeline contains no Gradle either.
 Triggers: pushes to `main`, `v*` tags, or a manual **Actions → build → Run workflow**. The artifact
 appears under that run's Artifacts → `onestar-apk`.
 
-Signing: the workflow reads the `ONESTAR_KS_B64` / `ONESTAR_KS_PASS` secrets. If they are absent it
+Signing: the workflow reads the `ONESTAR_KS_B64` / `ONESTAR_KS_PASS` / `ONESTAR_KS_ALIAS` secrets. If they are absent it
 builds with a throwaway debug keystore and logs an explicit warning — such artifacts cannot be
 installed as an upgrade.
 
@@ -354,13 +359,13 @@ A complete release:
    in sync
 2. Update `CHANGELOG.md` (Keep a Changelog style, unreleased work under `Unreleased`)
 3. `./test.sh && ./build.sh`, both green
-4. Commit, tag (`v0.12.2`), push
+4. Commit, tag (`v1.0.0`), push
 5. Create the Release from that tag on **Releases**, attach the APK and its SHA-256, and spell out
    the changes and upgrade notes
 
 > Historical baggage: `v6.3`–`v6.7` used the old build-number-style names, and `0.12.x` marks the
 > return to semantic versioning. The two are mapped in the CHANGELOG and the version timeline,
-> while `versionCode` stays continuous throughout. `0.12.2` is `versionCode 23`.
+> while `versionCode` stays continuous throughout. `0.12.2` is `versionCode 24`, and `1.0.0` — the signing cut-over — is `25`.
 
 ## 8. Data and privacy
 
@@ -415,9 +420,9 @@ continuity.
 
 - Only `arm64-v8a` is built; other ABIs need a change to `ABIS` plus your own cross toolchain target
 - UI coordinates are hand-computed for a fixed portrait ratio and need tuning at extreme aspect ratios
-- Releases and CI artifacts are signed with a fixed **debug certificate**, fit only for personal
-  use, trying the app and validating the build chain — **not for app-store publication and not for
-  public distribution** (see 5.3)
+- Releases and CI artifacts are signed with a fixed self-signed **release certificate**; identity
+  is stable across versions, but there is no third-party trust chain, so app-store publication would
+  need separate enrollment (see 5.3)
 - 15 languages are supported (Simplified and Traditional Chinese, English, Japanese, Korean, French,
   German, Spanish for Spain and Latin America, Arabic, Thai, Brazilian and European Portuguese,
   Tibetan, Uyghur), all implemented through the `I18n.java` string table and `TextDraw` RTL
