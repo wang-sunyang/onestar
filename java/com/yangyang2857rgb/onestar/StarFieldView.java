@@ -198,6 +198,11 @@ public class StarFieldView extends View {
     // v6.3 预测式返回：进度只推动面板本身，星空不跟着整屏后退
     private float backP;
     private android.animation.ValueAnimator backAnim;
+    // 0.12.3：预测式返回的滑出方向。+1 = 向右（左边缘触发），-1 = 向左（右边缘触发）。
+    private int backDir = 1;
+    // 0.12.3：当前面板种类，0 = 星图面板，1 = 系统面板。淡出期间沿用上一次的种类，
+    // 避免关闭系统面板的那一帧 panelT 仍接近 1 却改画 drawPanel，出现「闪一下星图」。
+    private int panelKind;
     private final Path backClip = new Path();   // 返回跟手时面板的圆角裁剪路径
     private String verCache;   // 右下角版本号：只读一次包信息，避免每帧走 PackageManager
 
@@ -545,7 +550,7 @@ public class StarFieldView extends View {
             float bk = backP;
             if (bk > 0.001f) {
                 float sc = 1f - 0.10f * bk;                       // 最多缩到 0.90
-                float dx = W * 0.22f * bk + W * 0.5f * (1f - sc);  // 右移，同时保持居中补偿
+                float dx = backDir * (W * 0.22f * bk) + W * 0.5f * (1f - sc);
                 float dy = H * 0.5f * (1f - sc);
                 c.translate(dx, dy);
                 c.scale(sc, sc);
@@ -556,7 +561,9 @@ public class StarFieldView extends View {
                     c.clipPath(backClip);
                 }
             }
-            if (sysOpen) drawSystemPanel(c);
+            // 0.12.3：用 panelKind 而不是实时开关决定画哪张面板。关闭系统面板的那一帧
+            // panelT 还接近 1，若立刻改画 drawPanel，会闪出一帧星图面板内容。
+            if (panelKind == 1) drawSystemPanel(c);
             else drawPanel(c);
             c.restore();
         }
@@ -2061,6 +2068,7 @@ public class StarFieldView extends View {
             resetBackProgress();
             sysOpen = true;
             panelOpen = false;
+            panelKind = 1;
             cancelPlay();
             invalidate();
             return;
@@ -2069,6 +2077,7 @@ public class StarFieldView extends View {
             pulse();
             resetBackProgress();
             panelOpen = true;
+            panelKind = 0;
             invalidate();
             return;
         }
@@ -2592,6 +2601,18 @@ public class StarFieldView extends View {
 
     boolean isCalOpen() {
         return calOpen;
+    }
+
+    /**
+     * 0.12.3：记录本次预测式返回由哪一侧边缘触发，决定面板滑出的方向。
+     * 左边缘（BackEvent.EDGE_LEFT = 0）向右滑，右边缘（EDGE_RIGHT = 1）向左滑，幅度一致。
+     */
+    void setBackEdge(int edge) {
+        int d = (edge == 1) ? -1 : 1;
+        if (d != backDir) {
+            backDir = d;
+            invalidate();
+        }
     }
 
     /** 返回手势进度：0 静止，1 面板被推到底。只影响面板，不动星空。 */

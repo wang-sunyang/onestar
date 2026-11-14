@@ -175,10 +175,11 @@ public class MainActivity extends Activity implements StarFieldView.Host,
                             @Override
                             public void onBackStarted(android.window.BackEvent e) {
                                 final float p = e == null ? 0f : e.getProgress();
+                                final int edge = e == null ? 0 : e.getSwipeEdge();
                                 runOnUiThread(new Runnable() {
                                     public void run() {
                                         backAnimating = true;
-                                        applyBackProgress(p);
+                                        applyBackProgress(p, edge);
                                     }
                                 });
                             }
@@ -186,9 +187,10 @@ public class MainActivity extends Activity implements StarFieldView.Host,
                             @Override
                             public void onBackProgressed(android.window.BackEvent e) {
                                 final float p = e == null ? 0f : e.getProgress();
+                                final int edge = e == null ? 0 : e.getSwipeEdge();
                                 runOnUiThread(new Runnable() {
                                     public void run() {
-                                        applyBackProgress(p);
+                                        applyBackProgress(p, edge);
                                     }
                                 });
                             }
@@ -228,13 +230,15 @@ public class MainActivity extends Activity implements StarFieldView.Host,
         }
     }
 
-    /** 跟手位移：进度 0→1，面板本身右移让位；星空保持不动。 */
-    private void applyBackProgress(float p) {
+    /** 跟手位移：进度 0→1，面板本身让位；方向由触发边缘决定，星空保持不动。 */
+    private void applyBackProgress(float p, int edge) {
         if (view == null) return;
         // v6.3：预测式返回只服务「星图面板」与「系统面板」本身。
         // 面板没开时不做任何位移，否则星空会像整页要被退掉。
         float k = Math.max(0f, Math.min(1f, p));
         if (!view.hasPanelOpen()) k = 0f;
+        // 0.12.3：右边缘触发时面板改为向左滑出（BackEvent.EDGE_RIGHT = 1），幅度与向右一致
+        view.setBackEdge(edge);
         view.setBackProgress(k);
     }
 
