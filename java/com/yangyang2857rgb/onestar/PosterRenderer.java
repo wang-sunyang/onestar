@@ -3,6 +3,7 @@ package com.yangyang2857rgb.onestar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -60,10 +61,11 @@ final class PosterRenderer {
         if (days.isEmpty()) return null;
 
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        String ver = versionName(ctx);
         Bitmap bmp = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
         Bitmap out;
         try {
-            draw(bmp, days, mood, names, back, today);
+            draw(bmp, days, mood, names, back, today, ver);
             out = bmp;
         } catch (Throwable t) {
             bmp.recycle();
@@ -79,6 +81,19 @@ final class PosterRenderer {
             out.recycle();
             return null;
         }
+    }
+
+    /** 当前安装包的版本名，页脚署名用；取不到时退化为破折号，绝不写死版本号。 */
+    static String versionName(Context ctx) {
+        try {
+            PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+            if (info != null && info.versionName != null && info.versionName.trim().length() > 0) {
+                return info.versionName.trim();
+            }
+        } catch (Throwable ignored) {
+            // 清单里没写 versionName 或读取被拦，交给下面的兜底
+        }
+        return "—";
     }
 
     private static String save(Context ctx, Bitmap bmp, String fileName) throws Exception {
@@ -110,7 +125,8 @@ final class PosterRenderer {
     }
 
     private static void draw(Bitmap bmp, List<String> days, Map<String, Integer> mood,
-                             Map<String, String> names, java.util.Set<String> back, String today) {
+                             Map<String, String> names, java.util.Set<String> back, String today,
+                             String ver) {
         Canvas c = new Canvas(bmp);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -401,8 +417,8 @@ final class PosterRenderer {
                 "Every star is a day you truly lived"), W / 2f, H - 96, p);
         p.setTextSize(18);
         p.setColor(0x668A97BD);
-        TextDraw.draw(c, I18n.f("拾光 v4.0 · 星轨回放 · 生成于 %s",
-                "OneStar v4.0 · Star replay · generated %s", today), W / 2f, H - 56, p);
+        TextDraw.draw(c, I18n.f("拾光 v%s · 星轨回放 · 生成于 %s",
+                "OneStar v%s · Star replay · generated %s", ver, today), W / 2f, H - 56, p);
         p.setTextAlign(Paint.Align.LEFT);
         p.setColor(Color.WHITE);
     }
