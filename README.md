@@ -38,7 +38,7 @@ The specs live offline under [`docs/`](docs/) — read the cross-platform plan f
 | [Credentials and tokens](docs/credentials-and-tokens.md) | PAT scopes, transfer, leak handling |
 | [Version timeline](docs/version-timeline.md) | Legacy build numbers mapped to semantic versions |
 | [docs index](docs/README.md) · [per-platform notes](docs/ecosystems/) | Reading order; android / apple / windows / linux / web / harmonyos |
-| [Personal site docs](https://github.com/yangyang2857-rgb/yangyang2857-rgb.github.io/blob/main/docs/notes-guide.md) | Sister repo: how the site's notes are written and published |
+| [Personal site docs](https://github.com/wang-sunyang/wang-sunyang.github.io/blob/main/docs/notes-guide.md) | Sister repo: how the site's notes are written and published |
 
 ---
 

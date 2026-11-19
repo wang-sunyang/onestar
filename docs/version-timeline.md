@@ -2,7 +2,7 @@
 
 > 整理范围：2026-11-04 至 2026-11-08（4 个开发日，21 个旧编号版本 / 13 个语义化版本）
 > 数据来源：CHANGELOG_v6.7语义化重编.md、拾光_GitHub发布记录.md、output/ 内各版本 APK 的实际生成时间
-> 包名：com.yangyang2857rgb.onestar　仓库：https://github.com/yangyang2857-rgb/onestar
+> 包名：com.yangyang2857rgb.onestar　仓库：https://github.com/wang-sunyang/onestar
 
 ## 一、总览
 

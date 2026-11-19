@@ -33,7 +33,7 @@
 | [凭据与令牌管理](docs/credentials-and-tokens.md) | PAT 权限、传递方式、泄露处置 |
 | [版本时间轴](docs/version-timeline.md) | 旧流水号与语义化版本号的对应 |
 | [docs 目录索引](docs/README.md) · [平台原文](docs/ecosystems/) | 阅读顺序；android / apple / windows / linux / web / harmonyos |
-| [个人主页维护指南](https://github.com/yangyang2857-rgb/yangyang2857-rgb.github.io/blob/main/docs/notes-guide.md) | 姊妹仓库：站点的笔记怎么写、怎么发 |
+| [个人主页维护指南](https://github.com/wang-sunyang/wang-sunyang.github.io/blob/main/docs/notes-guide.md) | 姊妹仓库：站点的笔记怎么写、怎么发 |
 
 ---
 
