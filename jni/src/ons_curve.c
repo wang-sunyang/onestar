@@ -26,7 +26,7 @@ static void ons_pass(float *a, int n) {
  * soften(float[] a, int n, int passes) —— 成功返回 0；非法参数返回 -1 / -2。
  */
 JNIEXPORT jint JNICALL
-Java_com_yangyang2857rgb_onestar_NativeCore_soften(JNIEnv *env, jclass cls,
+Java_com_wangsunyang_onestar_NativeCore_soften(JNIEnv *env, jclass cls,
                                           jfloatArray arr, jint n, jint passes) {
     (void) cls;
     if (arr == 0 || n <= 0) return -1;

@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * 拾光 v4.0「星轨回放」：把点亮过的日子，按顺序重新走一遍。

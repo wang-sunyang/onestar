@@ -1,4 +1,4 @@
-import com.yangyang2857rgb.onestar.CompatTable;
+import com.wangsunyang.onestar.CompatTable;
 
 /** v5.0 纯逻辑单测：不依赖 Android，javac + java 直接跑。 */
 public class CompatTableTest {

@@ -1,4 +1,4 @@
-import com.yangyang2857rgb.onestar.I18n;
+import com.wangsunyang.onestar.I18n;
 
 /**
  * 多语言文案表纯逻辑单测：不依赖 Android，javac + java 直接跑。

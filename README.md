@@ -200,7 +200,7 @@ across the two i18n layers):
 | `DayEditTest` | Day-entry editing state machine | 23 |
 | `MelodyTest` | Melody sequence and tempo | 20 |
 | `I18nTableTest` | i18n table completeness, language detection, date/number localisation | 2818 |
-| `I18nTest` (package `com.yangyang2857rgb.onestar`) | No Han characters may leak from logic classes in foreign-language modes | 92 |
+| `I18nTest` (package `com.wangsunyang.onestar`) | No Han characters may leak from logic classes in foreign-language modes | 92 |
 
 This habit — extract the logic that can be made pure, and hold it down with JVM assertions — is
 the main reason this project can evolve by hand for a long time without collapsing.
@@ -223,7 +223,7 @@ the main reason this project can evolve by hand for a long time without collapsi
 │   ├── signing-and-upgrade.md          # certificate pinning, CI injection and verification
 │   ├── credentials-and-tokens.md       # PAT types and scopes, transfer, leak handling
 │   └── screenshots/                    # screenshots referenced by this README
-├── java/com/yangyang2857rgb/onestar/
+├── java/com/wangsunyang/onestar/
 │   ├── MainActivity.java        # entry point, gestures, lifecycle
 │   ├── StarFieldView.java       # core custom view (3036 lines)
 │   ├── I18n.java                # 15-language string table (3237 lines, the largest file here)
@@ -286,7 +286,7 @@ The rule now: **pinned certificate, pinned passphrase, monotonically increasing 
 
 | Item | Value |
 | --- | --- |
-| Package name | `com.yangyang2857rgb.onestar` |
+| Package name | `com.wangsunyang.onestar` |
 | Certificate subject | `C=CN, O=Wang Sunyang, OU=Independent Developer, CN=Wang Sunyang` |
 | Certificate SHA-256 | `1E:8F:70:DF:5C:14:38:B6:50:DF:AC:74:0F:BD:D3:CC:AD:89:7E:E1:0F:A7:38:9B:3F:4F:52:98:AA:AA:BB:DC` |
 | Key alias | `wangsunyang` (PKCS#12 keystore) |

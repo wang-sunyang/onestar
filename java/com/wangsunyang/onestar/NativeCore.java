@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * 拾光 v5.2 · 原生内核桥接。

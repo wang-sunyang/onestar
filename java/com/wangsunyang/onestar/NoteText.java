@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * 一句话备注的纯文本处理：长度规整与存储转义。

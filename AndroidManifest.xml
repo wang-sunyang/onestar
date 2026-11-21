@@ -4,7 +4,7 @@
   规则见 CHANGELOG.md，build.sh 会在构建前校验它不小于历史最大值。
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yangyang2857rgb.onestar"
+    package="com.wangsunyang.onestar"
     android:versionCode="27"
     android:versionName="1.0.0">
 

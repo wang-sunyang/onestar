@@ -41,6 +41,12 @@ Android 会判定为降级、拒绝覆盖安装。所以这里把两套编号彻
 
 ## 未发布
 
+### 包名迁移（未发版 · 破坏性变更）
+
+- 应用包名从 `com.yangyang2857rgb.onestar` 迁移到 `com.wangsunyang.onestar`（manifest、源码、JNI 符号、README 同步更新）
+- **破坏性**：换包名等于换新应用，已安装用户无法覆盖升级，需卸载重装、点亮数据不迁移
+- 发版时按 MAJOR 规则处理（包名变更 → 主版本号 +1），并重新规划 `versionCode` 与升级/迁移策略
+
 ### 1.0.1 — 2026-11-15（versionCode 26，可直接覆盖升级）
 
 2026-11-15 的一版手感修正：备份与导出的反馈不再借用系统 Toast。
@@ -207,7 +213,7 @@ Android 会判定为降级、拒绝覆盖安装。所以这里把两套编号彻
 
 | 项目 | 事实 |
 |---|---|
-| 应用包名 | `com.yangyang2857rgb.onestar`（0.10.0 起；此前为旧包名） |
+| 应用包名 | `com.wangsunyang.onestar`（0.10.0 起；此前为旧包名） |
 | 构建方式 | 无 Gradle：`build.sh` + `aapt2` + `d8` + `zig cc` + `tools/zip16k.py` |
 | 界面实现 | 纯 Java Canvas 自绘（`StarFieldView`），无 WebView |
 | 存储 | `SharedPreferences`，纯文本行格式，字段位向后兼容扩展 |

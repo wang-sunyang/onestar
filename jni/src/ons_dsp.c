@@ -36,7 +36,7 @@ static float ons_clamp1(float v) {
  *   n 必须 <= pcm.length，否则返回 -1；参数非法返回 -2。成功返回 0。
  */
 JNIEXPORT jint JNICALL
-Java_com_yangyang2857rgb_onestar_NativeCore_chime(JNIEnv *env, jclass cls,
+Java_com_wangsunyang_onestar_NativeCore_chime(JNIEnv *env, jclass cls,
                                         jshortArray pcm, jint n, jfloat f0, jint sr) {
     (void) cls;
     if (pcm == 0 || n <= 0 || sr < 8000 || f0 < 20.0f || f0 > 12000.0f) return -2;

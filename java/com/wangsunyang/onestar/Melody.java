@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /** 拾光 v3.0 星月琴：把日期映射成半音，让一个月的星星连成一段可重放的旋律。 */
 public final class Melody {

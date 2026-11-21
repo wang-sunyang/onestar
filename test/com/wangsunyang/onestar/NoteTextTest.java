@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /** 拾光 v2.1 备注文本单测：纯 JVM，不依赖 android */
 public class NoteTextTest {

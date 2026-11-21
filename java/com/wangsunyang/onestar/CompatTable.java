@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * v5.0 纯逻辑：SDK → 版本名 / 页大小文案 / 内存档文案。

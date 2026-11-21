@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /** 拾光 v6.1 星册编辑逻辑单测：不依赖 android，直接 JVM 运行。 */
 public class DayEditTest {

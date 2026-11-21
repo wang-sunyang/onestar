@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * 拾光 v4.0「桌面小组件」的状态计算：从存储原始串里读出总数与今天是否点亮。

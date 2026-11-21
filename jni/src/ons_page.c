@@ -11,7 +11,7 @@ extern long sysconf(int);
 #define ONS_SC_PAGESIZE 39
 
 JNIEXPORT jint JNICALL
-Java_com_yangyang2857rgb_onestar_NativeCore_pageSize(JNIEnv *env, jclass cls) {
+Java_com_wangsunyang_onestar_NativeCore_pageSize(JNIEnv *env, jclass cls) {
     (void) env;
     (void) cls;
     long v = sysconf(ONS_SC_PAGESIZE);
@@ -19,7 +19,7 @@ Java_com_yangyang2857rgb_onestar_NativeCore_pageSize(JNIEnv *env, jclass cls) {
 }
 
 JNIEXPORT jint JNICALL
-Java_com_yangyang2857rgb_onestar_NativeCore_pageAlign(JNIEnv *env, jclass cls) {
+Java_com_wangsunyang_onestar_NativeCore_pageAlign(JNIEnv *env, jclass cls) {
     (void) env;
     (void) cls;
     /* 本库编译期使用的最大页尺寸，供 Java 侧核对打包是否按 16 KB 对齐 */
@@ -27,7 +27,7 @@ Java_com_yangyang2857rgb_onestar_NativeCore_pageAlign(JNIEnv *env, jclass cls) {
 }
 
 JNIEXPORT jint JNICALL
-Java_com_yangyang2857rgb_onestar_NativeCore_elfBits(JNIEnv *env, jclass cls) {
+Java_com_wangsunyang_onestar_NativeCore_elfBits(JNIEnv *env, jclass cls) {
     (void) env;
     (void) cls;
     return (jint) (sizeof(void *) * 8);

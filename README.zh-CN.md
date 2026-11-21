@@ -175,7 +175,7 @@ JAVA_HOME=/path/to/jdk-17 ./test.sh
 | `DayEditTest` | 日记录编辑状态机 | 23 |
 | `MelodyTest` | 旋律序列与节拍 | 20 |
 | `I18nTableTest` | 多语言表完整性、语言判定、日期/数字本地化 | 2818 |
-| `I18nTest`（`com.yangyang2857rgb.onestar` 包） | 外语模式下各逻辑类输出不得残留汉字 | 92 |
+| `I18nTest`（`com.wangsunyang.onestar` 包） | 外语模式下各逻辑类输出不得残留汉字 | 92 |
 
 这类"把可纯化的逻辑抽出来，用 JVM 断言兜住"的做法，是这个工程能长期手工演进而不至于崩掉的主要原因。
 
@@ -197,7 +197,7 @@ JAVA_HOME=/path/to/jdk-17 ./test.sh
 │   ├── signing-and-upgrade.md          # 证书固定、CI 注入与验签流程
 │   ├── credentials-and-tokens.md       # PAT 类型与权限、传递方式、泄露处置
 │   └── screenshots/                    # README 引用的截图
-├── java/com/yangyang2857rgb/onestar/
+├── java/com/wangsunyang/onestar/
 │   ├── MainActivity.java        # 入口，手势/生命周期
 │   ├── StarFieldView.java       # 核心自绘视图（3036 行）
 │   ├── I18n.java                # 15 种语言文案表（3237 行，全仓最大）
@@ -247,7 +247,7 @@ Android 的覆盖安装由系统做三件事的校验：**包名相同**、**证
 
 | 项 | 值 |
 | --- | --- |
-| 包名 | `com.yangyang2857rgb.onestar` |
+| 包名 | `com.wangsunyang.onestar` |
 | 签名证书主题 | `CN=OneStar Debug, O=OneStar, C=CN` |
 | 证书 SHA-256 | `B0:F1:E2:A1:36:84:16:90:0A:AC:9C:A2:F9:9F:19:1C:3F:E2:C4:13:43:50:3A:7F:38:A0:F7:98:79:D5:4C:D1` |
 | 有效期 | 2026-11-07 → 2054-03-25 |

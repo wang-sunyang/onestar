@@ -35,7 +35,7 @@ keytool -genkeypair -keystore "$WORK/debug.keystore" \
 
 | 项 | 值 |
 | --- | --- |
-| 包名 | `com.yangyang2857rgb.onestar` |
+| 包名 | `com.wangsunyang.onestar` |
 | 证书主题 | `C=CN, O=Wang Sunyang, OU=Independent Developer, CN=Wang Sunyang` |
 | 指纹（SHA-256） | `1E:8F:70:DF:5C:14:38:B6:50:DF:AC:74:0F:BD:D3:CC:AD:89:7E:E1:0F:A7:38:9B:3F:4F:52:98:AA:AA:BB:DC` |
 | keystore 别名 | `wangsunyang`（PKCS#12，`keytool -list` 显示的 Alias name 同值） |

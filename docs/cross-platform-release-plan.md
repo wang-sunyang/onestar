@@ -114,9 +114,9 @@
 
 | 锚点 | 取值 | 平台 | 改动代价 |
 | --- | --- | --- | --- |
-| 应用包名 / applicationId | `com.yangyang2857rgb.onestar` | Android | 不可改，等于换新应用 |
-| Bundle ID | `com.yangyang2857rgb.onestar` | Apple 全平台 | 不可改，IAP 与订阅全部失效 |
-| HarmonyOS bundleName | `com.yangyang2857rgb.onestar` | HarmonyOS | 不可改，用户需卸载重装 |
+| 应用包名 / applicationId | `com.wangsunyang.onestar` | Android | 不可改，等于换新应用 |
+| Bundle ID | `com.wangsunyang.onestar` | Apple 全平台 | 不可改，IAP 与订阅全部失效 |
+| HarmonyOS bundleName | `com.wangsunyang.onestar` | HarmonyOS | 不可改，用户需卸载重装 |
 | MSIX 包标识 / Publisher | `CN=Nightglean Studio` | Windows | 改为不同 Publisher 等于新产品 |
 | Linux App ID / .desktop 名 / 窗口 app_id | 三者必须完全一致，Flatpak 下还与 Flatpak ID 一致 | Linux | 断裂任务栏固定与通知历史 |
 | Web 源站（origin） | 正式域名，一次定死 | Web | origin 变化导致 PWA 重装、Storage 分区数据丢失、OAuth 回调失效 |

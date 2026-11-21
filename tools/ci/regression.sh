@@ -11,7 +11,7 @@
 
 set -uo pipefail
 
-PKG="${PKG:-com.yangyang2857rgb.onestar}"
+PKG="${PKG:-com.wangsunyang.onestar}"
 APK="${APK:-$(ls build/onestar-*-signed.apk 2>/dev/null | head -1)}"
 BASE_APK="${BASE_APK:-build/regression/base.apk}"
 OUT="${OUT:-build/regression}"

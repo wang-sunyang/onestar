@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 /**
  * 拾光 v6.1 星册编辑的纯逻辑（无 android 依赖，可直接 JVM 单测）。

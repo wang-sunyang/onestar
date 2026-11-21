@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

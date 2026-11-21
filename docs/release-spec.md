@@ -8,7 +8,7 @@
 
 ## 0. 适用范围、依据分级与三条原则
 
-本项目是原生 Android 应用（包名 `com.yangyang2857rgb.onestar`），当前分发方式为 GitHub Release + 侧载安装，构建链路为 `build.sh` + `aapt2` + `d8` + `zig cc` + `tools/zip16k.py`，不使用 Gradle。
+本项目是原生 Android 应用（包名 `com.wangsunyang.onestar`），当前分发方式为 GitHub Release + 侧载安装，构建链路为 `build.sh` + `aapt2` + `d8` + `zig cc` + `tools/zip16k.py`，不使用 Gradle。
 
 ### 0.1 依据分级与冲突裁决
 

@@ -1,4 +1,4 @@
-package com.yangyang2857rgb.onestar;
+package com.wangsunyang.onestar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
