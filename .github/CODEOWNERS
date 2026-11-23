@@ -1,0 +1,24 @@
+# CODEOWNERS — every path resolves to the sole copyright holder.
+# Default: nothing merges without review from @wang-sunyang.
+
+*       @wang-sunyang
+
+# Canonical implementation and native sources
+/java/            @wang-sunyang
+/jni/             @wang-sunyang
+/res/             @wang-sunyang
+/AndroidManifest.xml @wang-sunyang
+/build.sh         @wang-sunyang
+/test.sh          @wang-sunyang
+
+# Shipped assets and brand artwork
+/assets/          @wang-sunyang
+
+# Governance, docs, release history
+/GOVERNANCE.md    @wang-sunyang
+/LICENSE          @wang-sunyang
+/AUTHORS.md       @wang-sunyang
+/TRADEMARK.md     @wang-sunyang
+/docs/            @wang-sunyang
+/CHANGELOG.md     @wang-sunyang
+/.github/         @wang-sunyang
