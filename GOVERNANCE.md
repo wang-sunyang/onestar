@@ -124,3 +124,15 @@ maintainer's own contributions as external — is not a normal change and will b
 
 If §1.1 is ever edited, the edit is recorded in the PR description together with the
 reason. Silence in the history is not consent.
+
+## 5. Succession
+
+**As of 2026-11-23 no successor is designated.** That is a known single point of failure, and it is written down here rather than left implicit.
+
+There is exactly one maintainer and one BDFL: Wang Sunyang. Until a successor is named in this section under the procedure in §4, the following holds:
+
+- No one else may act as BDFL, grant a licence, or relicense this project. Copyright and the marks stay personal property (§2); absence, inactivity or death transfers neither of them.
+- If the maintainer cannot be reached for 90 consecutive days, the repository is frozen: no external change is merged, no release is cut, and no move into `nightglean` happens. The state is announced in the README rather than decided quietly.
+- The freeze lifts the moment the maintainer returns, and nothing done during it binds them afterwards.
+- Naming a successor requires an edit to this section plus a written scope: maintenance only, or also the copyright and the marks. The second half cannot be done by editing this file; it needs its own instrument, executed and recorded outside GitHub.
+- A designated successor takes effect on the date written here, not on the date a notice appears elsewhere.
