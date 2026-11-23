@@ -77,8 +77,8 @@ treating any row as settled.
 |---|---|---|
 | A | **Partly met** | Tagged releases exist: `v6.3`–`v6.7` published 2026-11-07 → 2026-11-08, plus `v0.12.2-rc1` on 2026-11-09. The v6 line has been public for roughly two weeks — shorter than one release cycle as this document reads it. |
 | B | **Not met** | One issue and one PR in the repository's history, both opened by the maintainer. Zero external contributions have completed the loop. |
-| C | **Not met** | `GOVERNANCE.md` exists (this file). `TRADEMARK.md`, `CODEOWNERS`, and `AUTHORS.md` do not. |
-| D | **Partly met** | `LICENSE` (MIT) names 王孙阳 (Wang Sunyang) as copyright holder, and `assets/COPYRIGHT.txt` carries the same attribution into the built APK. No trademark statement is on disk yet. |
+| C | **Not met** | Met. `GOVERNANCE.md`, `TRADEMARK.md`, `AUTHORS.md` and `.github/CODEOWNERS` are all on disk; `main` rejects force-pushes and deletion, admins included. |
+| D | **Partly met** | Met. `LICENSE` (MIT) and `AUTHORS.md` both name Wang Sunyang personally; `TRADEMARK.md` states the marks belong to the individual and are used by the organization under permission only. |
 
 ---
 
